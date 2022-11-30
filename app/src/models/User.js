@@ -7,23 +7,31 @@ class User {
     this.body = body;
   }
 
-  login() {
-    const client = this.client;
-    const { id, password } = UserStorage.getUserInfo(client.id);
+  async login() {
+    const client = this.body;
+    try {
+      const user = await UserStorage.getUserInfo(client.id);
 
-    if (id) {
-      if (id === client.id && password === client.password) {
-        return { success: true };
+      if (user) {
+        if (user.id === client.id && user.psword === client.psword) {
+          return { success: true };
+        }
+        return { success: false, msg: "비밀번호가 틀렸습니다." };
       }
-      return { success: false, msg: "비밀번호가 틀렸습니다." };
+      return { success: false, msg: "존재하지 않는 아이디입니다." };
+    } catch (err) {
+      return { success: false, err };
     }
-    return { success: false, msg: "존재하지 않는 아이디 입니다." };
   }
 
-  regitser() {
-    const client = this.client;
-    const response = UserStorage.save(this.body);
-    return response;
+  async register() {
+    const client = this.body;
+    try {
+      const response = await UserStorage.save(client);
+      return response;
+    } catch (err) {
+      return { success: false, err };
+    }
   }
 }
 
